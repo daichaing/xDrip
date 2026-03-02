@@ -1158,6 +1158,7 @@ public class Preferences extends BasePreferenceActivity implements SearchPrefere
             setupBarcodeConfigScanner();
             setupBarcodeShareScanner();
             setupQrFromFile();
+            setupG7OneClickPreset();   // G7_PATCH
             bindPreferenceSummaryToValue(findPreference("cloud_storage_mongodb_uri"));
             bindPreferenceSummaryToValue(findPreference("cloud_storage_mongodb_collection"));
             bindPreferenceSummaryToValue(findPreference("cloud_storage_mongodb_device_status_collection"));
@@ -3026,6 +3027,75 @@ public class Preferences extends BasePreferenceActivity implements SearchPrefere
                 }
             });
         }
+
+        // G7_PATCH ─────────────────────────────────────────────────────────────
+        /**
+         * 注册"G7 / One+ / Stelo 一键导入配置"选项的点击监听器。
+         * 解决在无摄像头设备（手表等）上无法扫描官方 keks QR 码的问题。
+         */
+        private void setupG7OneClickPreset() {
+            try {
+                final Preference g7Pref = findPreference("g7_one_click_setup");
+                if (g7Pref == null) {
+                    Log.w(TAG, "g7_one_click_setup preference not found in XML");
+                    return;
+                }
+                g7Pref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                    @Override
+                    public boolean onPreferenceClick(Preference preference) {
+                        applyG7PresetSettings();
+                        return true;
+                    }
+                });
+            } catch (Exception e) {
+                Log.e(TAG, "Error setting up G7 one-click preset: " + e.toString());
+            }
+        }
+
+        /**
+         * G7_PATCH
+         * 直接将 Dexcom G7 / One+ / Stelo 推荐设置写入 SharedPreferences，
+         * 功能等同于通过摄像头扫描官方 keks QR 码并确认导入。
+         */
+        private void applyG7PresetSettings() {
+            final java.util.Map<String, String> g7Settings = new java.util.LinkedHashMap<>();
+            g7Settings.put("ob1_g5_use_transmitter_alg", "true");
+            g7Settings.put("engineering_mode", "false");
+            g7Settings.put("ob1_g5_restart_sensor", "false");
+            g7Settings.put("ob1_g5_preemptive_restart", "false");
+            g7Settings.put("show_pseudo_filtered", "true");
+            g7Settings.put("aggressive_service_restart", "true");
+            g7Settings.put("ob1_g5_use_insufficiently_calibrated", "true");
+            g7Settings.put("dex_collection_method", "DexcomG5");
+
+            GenericConfirmDialog.show(
+                    this,
+                    getString(R.string.g7_preset_confirm_title),
+                    getString(R.string.g7_preset_confirm_message),
+                    () -> {
+                        final SharedPreferences.Editor editor = prefs.edit();
+                        int changes = 0;
+                        for (java.util.Map.Entry<String, String> entry : g7Settings.entrySet()) {
+                            final String value = entry.getValue();
+                            if ("true".equals(value) || "false".equals(value)) {
+                                editor.putBoolean(entry.getKey(), Boolean.parseBoolean(value));
+                            } else {
+                                editor.putString(entry.getKey(), value);
+                            }
+                            changes++;
+                        }
+                        editor.apply();
+                        refreshFragments();
+                        ExtraLogTags.readPreference(Pref.getStringDefaultBlank("extra_tags_for_logging"));
+                        Toast.makeText(getApplicationContext(), getString(R.string.g7_preset_success), Toast.LENGTH_LONG).show();
+                        PlusSyncService.clearandRestartSyncService(getApplicationContext());
+                        DesertSync.settingsChanged();
+                        InfoContentProvider.ping("pref");
+                        Log.i(TAG, "G7 preset settings applied: " + changes + " preferences written");
+                    }
+            );
+        }
+        // ─────────────────────────────────────────────────────── END G7_PATCH ─
 
         private void refresh_extra_items() {
             try {
