@@ -3069,8 +3069,10 @@ public class Preferences extends BasePreferenceActivity implements SearchPrefere
             g7Settings.put("dex_collection_method", "DexcomG5");
 
             // 捕获外部引用，避免 lambda 内部 this 歧义
-            final AllPrefsFragment self = this;
+            // parent 是 AllPrefsFragment 的 Preferences 字段（外部 Activity）
+            final Preferences parentActivity = parent;
             final android.content.Context ctx = getActivity().getApplicationContext();
+            final String successMsg = getString(R.string.g7_preset_success);
 
             GenericConfirmDialog.show(
                     getActivity(),
@@ -3089,9 +3091,9 @@ public class Preferences extends BasePreferenceActivity implements SearchPrefere
                             changes++;
                         }
                         editor.apply();
-                        self.refreshFragments();
+                        if (parentActivity != null) parentActivity.refreshFragments();
                         ExtraLogTags.readPreference(Pref.getStringDefaultBlank("extra_tags_for_logging"));
-                        Toast.makeText(ctx, self.getString(R.string.g7_preset_success), Toast.LENGTH_LONG).show();
+                        Toast.makeText(ctx, successMsg, Toast.LENGTH_LONG).show();
                         PlusSyncService.clearandRestartSyncService(ctx);
                         DesertSync.settingsChanged();
                         InfoContentProvider.ping("pref");
