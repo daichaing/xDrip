@@ -2086,4 +2086,10 @@
     <string name="glupro_reading_frequency">Reading frequency</string>
     <string name="need_bluetooth_permission">Need bluetooth permission</string>
     <string name="ob1_sensor_stopped">Sensor Stopped</string>
+    <!-- G7_PATCH: G7 一键配置字符串 -->
+    <string name="g7_preset_title">G7 / One+ / Stelo 一键导入配置</string>
+    <string name="g7_preset_summary">无需摄像头，直接导入 G7/One+/Stelo 推荐设置（适合手表等无摄像头设备）</string>
+    <string name="g7_preset_confirm_title">确认导入 G7 推荐设置？</string>
+    <string name="g7_preset_confirm_message">将导入以下 Dexcom G7 / One+ / Stelo 推荐设置（与官方 QR 码内容相同）：\n\n• ob1_g5_use_transmitter_alg = true\n• engineering_mode = false\n• ob1_g5_restart_sensor = false\n• ob1_g5_preemptive_restart = false\n• show_pseudo_filtered = true\n• aggressive_service_restart = true\n• ob1_g5_use_insufficiently_calibrated = true\n• dex_collection_method = DexcomG5\n\n是否继续？</string>
+    <string name="g7_preset_success">已成功导入 G7 推荐设置，请在 Dex Status 页面点击"Restart Collector"。</string>
 </resources>
