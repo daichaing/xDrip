@@ -18,6 +18,7 @@
 
 ## What does it do?
 
+
 xDrip+ is an unofficial and independent Android app which works as data hub and processor between many different devices.
 
 It supports wireless connections to G6, G7, Medtrum A6, Libre via NFC and Bluetooth, 630G, 640G, 670G pumps, CareSens Air and Eversense CGM via companion apps. Bluetooth Glucose Meters such as the Contour Next One, AccuChek Guide, Verio Flex & Diamond Mini as well as devices like the Pendiq 2.0 Insulin Pen.
