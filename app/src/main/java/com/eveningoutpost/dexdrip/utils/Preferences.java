@@ -3068,8 +3068,12 @@ public class Preferences extends BasePreferenceActivity implements SearchPrefere
             g7Settings.put("ob1_g5_use_insufficiently_calibrated", "true");
             g7Settings.put("dex_collection_method", "DexcomG5");
 
+            // 捕获外部引用，避免 lambda 内部 this 歧义
+            final AllPrefsFragment self = this;
+            final android.content.Context ctx = getActivity().getApplicationContext();
+
             GenericConfirmDialog.show(
-                    this,
+                    getActivity(),
                     getString(R.string.g7_preset_confirm_title),
                     getString(R.string.g7_preset_confirm_message),
                     () -> {
@@ -3085,10 +3089,10 @@ public class Preferences extends BasePreferenceActivity implements SearchPrefere
                             changes++;
                         }
                         editor.apply();
-                        refreshFragments();
+                        self.refreshFragments();
                         ExtraLogTags.readPreference(Pref.getStringDefaultBlank("extra_tags_for_logging"));
-                        Toast.makeText(getApplicationContext(), getString(R.string.g7_preset_success), Toast.LENGTH_LONG).show();
-                        PlusSyncService.clearandRestartSyncService(getApplicationContext());
+                        Toast.makeText(ctx, self.getString(R.string.g7_preset_success), Toast.LENGTH_LONG).show();
+                        PlusSyncService.clearandRestartSyncService(ctx);
                         DesertSync.settingsChanged();
                         InfoContentProvider.ping("pref");
                         Log.i(TAG, "G7 preset settings applied: " + changes + " preferences written");
