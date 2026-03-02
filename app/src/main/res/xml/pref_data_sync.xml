@@ -19,6 +19,11 @@
                 android:key="qr_code_from_file"
                 android:summary="@string/auto_config_image_summary"
                 android:title="@string/auto_config_image_title" />
+            <!-- G7_PATCH: 一键导入 G7 推荐设置，适合无摄像头设备（手表等） -->
+            <PreferenceScreen
+                android:key="g7_one_click_setup"
+                android:summary="@string/g7_preset_summary"
+                android:title="@string/g7_preset_title" />
         </PreferenceScreen>
         <PreferenceScreen
             android:icon="@drawable/ic_cloud_upload_grey600_48dp"
