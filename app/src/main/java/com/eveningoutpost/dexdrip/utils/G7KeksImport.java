@@ -7,7 +7,7 @@ import android.preference.PreferenceManager;
 import com.eveningoutpost.dexdrip.models.UserError;
 import com.eveningoutpost.dexdrip.receiver.InfoContentProvider;
 import com.eveningoutpost.dexdrip.services.PlusSyncService;
-import com.eveningoutpost.dexdrip.utilitymodels.DesertSync;
+import com.eveningoutpost.dexdrip.models.DesertSync;
 
 /**
  * One-tap import of the G7 / One+ / Stelo parameters (keks_p1..p3).
