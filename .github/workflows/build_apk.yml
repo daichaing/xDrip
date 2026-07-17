@@ -1,0 +1,46 @@
+name: Build Watch APK
+
+on:
+  push:
+    branches: [ master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - uses: actions/setup-java@v4
+      with:
+        java-version: 17
+        distribution: temurin
+
+    - name: Build prod release APK
+      uses: gradle/gradle-build-action@v3
+      with:
+        arguments: assembleProdRelease
+
+    - name: Zipalign and sign APK
+      run: |
+        set -e
+        UNSIGNED=$(ls app/build/outputs/apk/prod/release/*.apk | head -1)
+        echo "Unsigned APK: $UNSIGNED"
+        BUILD_TOOLS=$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -1)
+        echo "Using build-tools: $BUILD_TOOLS"
+        "$BUILD_TOOLS/zipalign" -p -f 4 "$UNSIGNED" aligned.apk
+        "$BUILD_TOOLS/apksigner" sign \
+          --ks etc/keystore/watch.p12 \
+          --ks-key-alias watch \
+          --ks-pass pass:androidwatch \
+          --out xdrip-watch.apk \
+          aligned.apk
+        "$BUILD_TOOLS/apksigner" verify xdrip-watch.apk
+        ls -la xdrip-watch.apk
+
+    - name: Upload APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: xdrip-watch-apk
+        path: xdrip-watch.apk

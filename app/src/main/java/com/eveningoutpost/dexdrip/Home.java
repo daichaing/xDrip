@@ -95,6 +95,7 @@ import com.eveningoutpost.dexdrip.models.Treatments;
 import com.eveningoutpost.dexdrip.models.UserError;
 import com.eveningoutpost.dexdrip.services.ActivityRecognizedService;
 import com.eveningoutpost.dexdrip.services.DexCollectionService;
+import com.eveningoutpost.dexdrip.services.FloatingBgService;
 import com.eveningoutpost.dexdrip.services.Ob1G5CollectionService;
 import com.eveningoutpost.dexdrip.services.PlusSyncService;
 import com.eveningoutpost.dexdrip.services.WixelReader;
@@ -397,6 +398,18 @@ public class Home extends ActivityWithMenu implements ActivityCompat.OnRequestPe
         binding.setNano(nanoStatus);
         binding.setExpiry(expiryStatus);
         setContentView(binding.getRoot());
+
+        // start the floating glucose overlay; if overlay permission is missing,
+        // send the user to the system settings page to grant it
+        FloatingBgService.enableAndStart(this);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(this)) {
+            try {
+                startActivity(new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                        Uri.parse("package:" + getPackageName())));
+            } catch (Exception e) {
+                UserError.Log.e(TAG, "Could not open overlay permission settings: " + e);
+            }
+        }
 
         Toolbar mToolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(mToolbar);

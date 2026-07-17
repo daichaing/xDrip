@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Dimension overrides for genuinely small screens (e.g. Android watches).
+     These values are only selected on devices whose screen size class is
+     "small"; normal phones keep using values/dimens.xml. Together with the
+     density scaling applied in xdrip.getDisplayScaledContext() this keeps
+     screens usable on tiny displays such as 320x390 px watches. -->
+<resources>
+
+    <!-- The standard 240dp drawer would cover nearly the whole watch screen;
+         keep a sliver of the underlying content visible instead. -->
+    <dimen name="navigation_drawer_width">200dp</dimen>
+
+    <!-- Slightly larger helper text for reading on a watch display. -->
+    <dimen name="text_helper">16sp</dimen>
+
+</resources>

@@ -28,6 +28,7 @@ import com.eveningoutpost.dexdrip.watch.thinjam.BlueJayEntry;
 import com.eveningoutpost.dexdrip.watch.thinjam.BlueJayRemote;
 import com.eveningoutpost.dexdrip.wearintegration.Amazfitservice;
 import com.eveningoutpost.dexdrip.wearintegration.ExternalStatusService;
+import com.eveningoutpost.dexdrip.services.FloatingBgService;
 import com.eveningoutpost.dexdrip.services.broadcastservice.BroadcastEntry;
 import com.eveningoutpost.dexdrip.wearintegration.WatchUpdaterService;
 
@@ -72,6 +73,7 @@ public class NewDataObserver {
         LibreBlock.UpdateBgVal(bgReading.timestamp, bgReading.calculated_value);
         LockScreenWallPaper.setIfEnabled();
         NightLiteEntry.uploadIfEnabled();
+        FloatingBgService.onNewBgReading();
 
         try {
             sendToHealthConnect(bgReading);

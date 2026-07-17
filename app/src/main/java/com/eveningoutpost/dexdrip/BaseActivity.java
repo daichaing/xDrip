@@ -9,7 +9,7 @@ public abstract class BaseActivity extends Activity {
 
     @Override
     protected void attachBaseContext(final Context baseContext) {
-        final Context context = xdrip.getLangContext(baseContext);
+        final Context context = xdrip.getDisplayScaledContext(xdrip.getLangContext(baseContext));
         super.attachBaseContext(context);
     }
 

@@ -258,6 +258,30 @@ public class xdrip extends Application {
         }
     }
 
+    // Scale factor applied to the display density on small screens (e.g. Android
+    // watches) so that text, buttons and other UI elements become large enough
+    // to read and tap comfortably. 1.25 turns a 160 dpi watch screen into an
+    // effective 200 dpi rendering without touching normal phone screens.
+    private static final float SMALL_SCREEN_DENSITY_SCALE = 1.25f;
+
+    // enlarge ui elements on genuinely small screens such as watches
+    public static Context getDisplayScaledContext(Context context) {
+        try {
+            final Configuration config = context.getResources().getConfiguration();
+            final int screenSizeClass = config.screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK;
+            if (screenSizeClass == Configuration.SCREENLAYOUT_SIZE_SMALL
+                    || (config.smallestScreenWidthDp > 0 && config.smallestScreenWidthDp <= 330)) {
+                final Configuration scaled = new Configuration(config);
+                scaled.densityDpi = Math.max(1, Math.round(config.densityDpi * SMALL_SCREEN_DENSITY_SCALE));
+                return new ContextWrapper(context.createConfigurationContext(scaled));
+            }
+            return context;
+        } catch (Exception e) {
+            Log.e(TAG, "Got exception in getDisplayScaledContext: " + e);
+            return context;
+        }
+    }
+
 
     public static String gs(@StringRes final int id) {
         return getAppContext().getString(id);

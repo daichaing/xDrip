@@ -43,6 +43,10 @@
     <string name="auto_config_cam_summary">Scan a QR code with your mobile (recommended)</string>
     <string name="auto_config_image_title">Image file</string>
     <string name="auto_config_image_summary">You can save a QR code as an image file (such as .png or .jpeg) on your mobile. Then, use this option to scan the QR code from the saved file.</string>
+    <string name="g7_import_title">一键导入G7参数</string>
+    <string name="g7_import_summary">无需扫码，直接写入 G7/One+/Stelo 连接参数（keks_p1 / keks_p2 / keks_p3）</string>
+    <string name="g7_import_success">G7 参数已导入（%1$d 项）</string>
+    <string name="g7_import_failed">G7 参数导入失败，请重试</string>
     <string name="scan_share2_barcode">Scan Share Barcode</string>
     <string name="pref_share2_scan_barcode_summary">Or scan the barcode on the share receiver</string>
 

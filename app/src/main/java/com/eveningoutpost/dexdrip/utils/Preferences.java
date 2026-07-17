@@ -1156,6 +1156,7 @@ public class Preferences extends BasePreferenceActivity implements SearchPrefere
             setupBarcodeConfigScanner();
             setupBarcodeShareScanner();
             setupQrFromFile();
+            setupG7KeksImport();
             bindPreferenceSummaryToValue(findPreference("cloud_storage_mongodb_uri"));
             bindPreferenceSummaryToValue(findPreference("cloud_storage_mongodb_collection"));
             bindPreferenceSummaryToValue(findPreference("cloud_storage_mongodb_device_status_collection"));
@@ -3024,6 +3025,21 @@ public class Preferences extends BasePreferenceActivity implements SearchPrefere
                 @Override
                 public boolean onPreferenceClick(Preference preference) { // Listener for scanning QR code from file
                     new QrCodeFromFile(getActivity()).scanFile();
+                    return true;
+                }
+            });
+        }
+
+        private void setupG7KeksImport() {
+            findPreference("one_click_import_g7_params").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) { // one-tap import of G7/One+/Stelo parameters without scanning
+                    final int changes = G7KeksImport.importParams(getActivity());
+                    if (changes > 0) {
+                        Toast.makeText(getActivity(), getString(R.string.g7_import_success, changes), Toast.LENGTH_LONG).show();
+                    } else {
+                        Toast.makeText(getActivity(), getString(R.string.g7_import_failed), Toast.LENGTH_LONG).show();
+                    }
                     return true;
                 }
             });
