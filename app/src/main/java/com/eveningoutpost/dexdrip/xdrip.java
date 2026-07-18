@@ -1,12 +1,14 @@
 package com.eveningoutpost.dexdrip;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.IntentFilter;
 import android.content.res.Configuration;
 import android.os.Build;
+import android.os.Bundle;
 import android.preference.PreferenceManager;
 import androidx.annotation.StringRes;
 import android.util.Log;
@@ -34,6 +36,7 @@ import com.eveningoutpost.dexdrip.utils.jobs.XDripJobCreator;
 import com.eveningoutpost.dexdrip.watch.lefun.LeFunEntry;
 import com.eveningoutpost.dexdrip.watch.miband.MiBandEntry;
 import com.eveningoutpost.dexdrip.watch.thinjam.BlueJayEntry;
+import com.eveningoutpost.dexdrip.services.FloatingBgService;
 import com.eveningoutpost.dexdrip.services.broadcastservice.BroadcastEntry;
 import com.eveningoutpost.dexdrip.wearintegration.ExternalStatusBroadcastReceiverWrapper;
 import com.eveningoutpost.dexdrip.webservices.XdripWebService;
@@ -80,6 +83,32 @@ public class xdrip extends Application {
     public void onCreate() {
         xdrip.context = getApplicationContext();
         super.onCreate();
+
+        // track whether any xDrip activity is visible so the floating glucose
+        // overlay can hide itself while the app itself is in the foreground
+        registerActivityLifecycleCallbacks(new ActivityLifecycleCallbacks() {
+            private int startedActivities = 0;
+
+            @Override
+            public void onActivityStarted(final Activity activity) {
+                startedActivities++;
+                FloatingBgService.onAppForegroundChanged(true);
+            }
+
+            @Override
+            public void onActivityStopped(final Activity activity) {
+                startedActivities--;
+                if (startedActivities < 0) startedActivities = 0;
+                FloatingBgService.onAppForegroundChanged(startedActivities > 0);
+            }
+
+            @Override public void onActivityCreated(final Activity a, final Bundle b) { }
+            @Override public void onActivityResumed(final Activity a) { }
+            @Override public void onActivityPaused(final Activity a) { }
+            @Override public void onActivitySaveInstanceState(final Activity a, final Bundle b) { }
+            @Override public void onActivityDestroyed(final Activity a) { }
+        });
+
         JodaTimeAndroid.init(this);
         try {
             if (PreferenceManager.getDefaultSharedPreferences(xdrip.context).getBoolean("enable_crashlytics", true)) {

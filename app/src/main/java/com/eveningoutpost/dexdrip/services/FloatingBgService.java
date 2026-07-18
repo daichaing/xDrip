@@ -64,6 +64,10 @@ public class FloatingBgService extends Service {
 
     private static volatile FloatingBgService instance;
 
+    // true while any xDrip activity is visible; the overlay hides itself then
+    // so it does not duplicate the app's own display
+    private static volatile boolean appInForeground = false;
+
     private WindowManager windowManager;
     private View overlayView;
     private TextView valueText;
@@ -101,6 +105,23 @@ public class FloatingBgService extends Service {
     public static void enableAndStart(final Context context) {
         Pref.setBoolean(PREF_ENABLED, true);
         start(context);
+    }
+
+    // called from the application lifecycle tracker when xDrip moves between
+    // foreground and background
+    public static void onAppForegroundChanged(final boolean foreground) {
+        appInForeground = foreground;
+        final FloatingBgService service = instance;
+        if (service != null) {
+            service.handler.post(() -> {
+                if (appInForeground) {
+                    service.hideOverlay();
+                } else {
+                    service.showOverlay();
+                    service.refreshValue();
+                }
+            });
+        }
     }
 
     // called from NewDataObserver when a new reading arrives
@@ -164,7 +185,7 @@ public class FloatingBgService extends Service {
     }
 
     private void showOverlay() {
-        if (overlayShowing || !isScreenOn()) return;
+        if (overlayShowing || !isScreenOn() || appInForeground) return;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(this)) {
             UserError.Log.w(TAG, "Overlay permission not granted yet");
             return;
