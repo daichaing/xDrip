@@ -1017,7 +1017,7 @@ public class GcmActivity extends FauxActivity {
         int resultCode = apiAvailability.isGooglePlayServicesAvailable(context);
         if (resultCode != ConnectionResult.SUCCESS) {
             try {
-                if (apiAvailability.isUserResolvableError(resultCode)) {
+                if (apiAvailability.isUserResolvableError(resultCode) && isPlayServicesInstalled(context)) {
                     if (resultCode == 3 && BlueJayEntry.isNative()) return false;
                     if (activity != null) {
                         apiAvailability.getErrorDialog(activity, resultCode, PLAY_SERVICES_RESOLUTION_REQUEST)
@@ -1032,9 +1032,10 @@ public class GcmActivity extends FauxActivity {
                         }
                     }
                 } else {
-                    final String msg = "This device is not supported for play services.";
-                    Log.i(TAG, msg);
-                    JoH.static_toast_long(msg);
+                    // Play services package is not installed at all (e.g. watches
+                    // without GMS) - never nag with unresolvable dialogs, just
+                    // quietly disable all GCM based activity
+                    Log.i(TAG, "Play services unavailable (" + resultCode + ") - disabling GCM activity");
                     cease_all_activity = true;
                     return false;
                 }
@@ -1045,6 +1046,16 @@ public class GcmActivity extends FauxActivity {
             return false;
         }
         return true;
+    }
+
+    // check whether the Google Play services package is actually present on the device
+    private static boolean isPlayServicesInstalled(final Context context) {
+        try {
+            context.getPackageManager().getPackageInfo("com.google.android.gms", 0);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     private static class GCM_data {
