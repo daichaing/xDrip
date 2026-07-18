@@ -1017,7 +1017,7 @@ public class GcmActivity extends FauxActivity {
         int resultCode = apiAvailability.isGooglePlayServicesAvailable(context);
         if (resultCode != ConnectionResult.SUCCESS) {
             try {
-                if (apiAvailability.isUserResolvableError(resultCode) && isPlayServicesInstalled(context)) {
+                if (apiAvailability.isUserResolvableError(resultCode) && canResolvePlayServices(context)) {
                     if (resultCode == 3 && BlueJayEntry.isNative()) return false;
                     if (activity != null) {
                         apiAvailability.getErrorDialog(activity, resultCode, PLAY_SERVICES_RESOLUTION_REQUEST)
@@ -1048,10 +1048,12 @@ public class GcmActivity extends FauxActivity {
         return true;
     }
 
-    // check whether the Google Play services package is actually present on the device
-    private static boolean isPlayServicesInstalled(final Context context) {
+    // the error dialog only sends the user to the Play Store - if that is not
+    // installed either (e.g. watches without the Google ecosystem) the dialog
+    // can never resolve anything, so treat the situation as unresolvable
+    private static boolean canResolvePlayServices(final Context context) {
         try {
-            context.getPackageManager().getPackageInfo("com.google.android.gms", 0);
+            context.getPackageManager().getPackageInfo("com.android.vending", 0);
             return true;
         } catch (Exception e) {
             return false;
