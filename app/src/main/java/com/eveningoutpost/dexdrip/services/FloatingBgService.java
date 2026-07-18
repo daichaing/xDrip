@@ -61,6 +61,11 @@ public class FloatingBgService extends Service {
     private static final int COLOR_IN_RANGE = 0xFF00E676;    // bright green
     private static final int COLOR_OUT_OF_RANGE = 0xFFFF5252; // bright red
     private static final int COLOR_NO_DATA = 0xFFFFFFFF;      // white
+    private static final int COLOR_STALE = 0xFFFFB300;        // amber
+
+    // readings older than this are considered stale (sensor disconnected,
+    // network problems etc.) and the trend arrow is replaced by the data age
+    private static final long STALE_THRESHOLD_MS = 10 * 60_000;
 
     private static volatile FloatingBgService instance;
 
@@ -316,7 +321,9 @@ public class FloatingBgService extends Service {
             if (latest == null || latest.isEmpty() || latest.get(0) == null) {
                 valueText.setText("--");
                 valueText.setTextColor(COLOR_NO_DATA);
-                arrowText.setText("");
+                arrowText.setTextSize(20);
+                arrowText.setText("无数据");
+                arrowText.setTextColor(COLOR_STALE);
                 return;
             }
             final BgReading bg = latest.get(0);
@@ -325,8 +332,19 @@ public class FloatingBgService extends Service {
                     || bg.calculated_value > RANGE_HIGH_MGDL)
                     ? COLOR_OUT_OF_RANGE : COLOR_IN_RANGE;
             valueText.setTextColor(color);
-            arrowText.setTextColor(color);
-            arrowText.setText(bg.displaySlopeArrow());
+
+            final long ageMs = System.currentTimeMillis() - bg.timestamp;
+            if (ageMs > STALE_THRESHOLD_MS) {
+                // stale reading: replace the trend arrow with the age of the data
+                final long minutes = Math.max(1, ageMs / 60_000);
+                arrowText.setTextSize(20);
+                arrowText.setText(minutes + "分钟前");
+                arrowText.setTextColor(COLOR_STALE);
+            } else {
+                arrowText.setTextSize(40);
+                arrowText.setText(bg.displaySlopeArrow());
+                arrowText.setTextColor(color);
+            }
         } catch (Exception e) {
             UserError.Log.e(TAG, "Could not refresh overlay value: " + e);
         }
